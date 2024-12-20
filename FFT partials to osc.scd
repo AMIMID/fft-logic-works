@@ -2,8 +2,7 @@
 s.options.numWireBufs = 1024*4;
 s.options.numOutputBusChannels=2;
 s.options.numInputBusChannels=2;
-TempoClock.default.tempo_(1);
-s.options.memSize = 8192*64;
+s.options.memSize = 8192*128;
 s.options.blockSize = 64;
 s.options.maxNodes = 1024 * 16;
 s.options.sampleRate= 44100;
@@ -175,9 +174,8 @@ Synth(\obin,[\b,16])
 s.record(numChannels:4);
 \\////////////////////////////////////multiple synths
 100.xrand
-
+512/2
 (
-~n=0.0;
 512.do{
 	|i|
 (
@@ -190,12 +188,13 @@ s.record(numChannels:4);
 	var samplerate=44100;
 	var env,k;
 
-    in1 = PlayBuf.ar(1, ~c1.bufnum, BufRateScale.kr(~c1),startPos:~n.postln, loop: 0, doneAction:2);
+	in1 = PlayBuf.ar(1, ~c1.bufnum, BufRateScale.kr(~c1.bufnum),startPos:((~c1.numFrames/512)), loop: 0, doneAction:2);
 
 	chainx = FFT(LocalBuf(frames), in1);
 	chainy = FFT(LocalBuf(frames), in1);
 
-			b=512.xrand.postln;
+			b=Pxrand.new(~list, 1).asStream.next.postln;
+
 chainxx = chainx.pvcollect(frames, {|magnitude, phase, bin|
 		[magnitude,phase]
 
@@ -211,16 +210,28 @@ chainyy = chainx.pvcollect(frames, {|magnitude, phase, bin|
 		Out.ar(1,IFFT(chainyy)*1);
 }).add;
 );
-	~n=~n+38124.0;
 }
 )
-Synth(\obin_200)
+
+	({
+		var n=1.neg;
+		~list=(511).collect{
+		n=n+1;
+		}
+		}.value
+	);
+
+
+Synth(\obin_++(256.rand))
 
 Synth(\obin_10)
 
+512.do{Synth(\obin_++(Pxrand.new(~list, 1).asStream.next))}
+512.do{|i| Synth(\obin_++i);}
+
 ~dur=((~c1.numFrames/512)/44100);
 
-~c1.numFrames/512
+(~c1.numFrames/512)*8
 
 	(
 Tdef.new(\h,{
@@ -236,5 +247,6 @@ Tdef(\h).stop;
 Tdef(\h).play;
 Tdef(\h).clear;
 
-r=Routine{512.do{|i| Synth(\obin_++i); (1+i).postln; (~dur).wait;}}
+
+r=Routine{512.do{|i| Synth(\obin_++i).postln;/* (~dur).wait;*/}}
 r.play
