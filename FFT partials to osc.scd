@@ -7,7 +7,8 @@ s.options.memSize = 8192*64;
 s.options.blockSize = 64;
 s.options.maxNodes = 1024 * 16;
 s.options.sampleRate= 44100;
-s.waitForBoot
+s.options.maxSynthDefs=1024*2;
+s.waitForBoot;
 )
 
 ////////////////buffers
@@ -26,6 +27,10 @@ Buffer.freeAll
 
 ~c1 = Buffer.readChannel(s,"/Users/petrostatsiopoulos/Desktop/PROJECT  FILES/uni/ksyme:cmrc/askhsh3/samples mix mono.wav",channels:0 );
 
+~c1.numFrames
+/////duration(seconds)=number of frames/samplerate
+
+~c1 = Buffer.readChannel(s,"/Users/petrostatsiopoulos/Desktop/PROJECT  FILES/uni/ksyme:cmrc/askhsh2/source/FLOROS A.wav",channels:0 );
 
 ~c1 = Buffer.readChannel(s,"/Users/petrostatsiopoulos/Dokuments/EXTERNAL/music/piece of my heart Intermission.wav",channels:0 );
 ~c2 = Buffer.readChannel(s,"/Users/petrostatsiopoulos/Dokuments/EXTERNAL/music/piece of my heart Intermission.wav",channels:1 );
@@ -171,7 +176,7 @@ s.record(numChannels:4);
 \\////////////////////////////////////multiple synths
 
 (
-100.do{
+512.do{
 	|i|
 (
 		SynthDef.new(\obin_++i, {
@@ -179,11 +184,11 @@ s.record(numChannels:4);
     var b=643;
     var in1,chainx,chainy;
 	var chainxx,chainyy;
-	var bank,frames=1024*2;
+	var bank,frames=1024;
 	var samplerate=44100;
 	var env,k;
 
-    in1 = PlayBuf.ar(1, ~c1.bufnum, BufRateScale.kr(~c1), loop: 0, doneAction:2);
+    in1 = PlayBuf.ar(1, ~c1.bufnum, BufRateScale.kr(~c1),startPos:0.0, loop: 0, doneAction:2);
 
 	chainx = FFT(LocalBuf(frames), in1);
 	chainy = FFT(LocalBuf(frames), in1);
@@ -206,5 +211,29 @@ chainyy = chainx.pvcollect(frames, {|magnitude, phase, bin|
 );
 }
 )
-Synth(\obin_++(99.rand))
+Synth(\obin_++(999.rand))
 Synth(\obin_10)
+
+~dur=(~c1.numFrames/44100);
+
+	(
+Tdef.new(\h,{
+loop({
+		10.do{Synth(\obin_++(511.rand))};
+			(~dur/5).wait;
+		20.do{Synth(\obin_++(511.rand))};
+		(~dur/4).wait;
+		30.do{Synth(\obin_++(511.rand))};
+			(~dur/3).wait;
+		40.do{Synth(\obin_++(511.rand))};
+			(~dur/2).wait;
+		512.do{Synth(\obin_++(511.rand))};
+
+
+	})
+})
+);
+
+Tdef(\h).stop;
+Tdef(\h).play;
+Tdef(\h).clear;
