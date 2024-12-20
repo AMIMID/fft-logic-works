@@ -27,7 +27,7 @@ Buffer.freeAll
 
 ~c1 = Buffer.readChannel(s,"/Users/petrostatsiopoulos/Desktop/PROJECT  FILES/uni/ksyme:cmrc/askhsh3/samples mix mono.wav",channels:0 );
 
-~c1.numFrames
+~c1.numFrames/512
 /////duration(seconds)=number of frames/samplerate
 
 ~c1 = Buffer.readChannel(s,"/Users/petrostatsiopoulos/Desktop/PROJECT  FILES/uni/ksyme:cmrc/askhsh2/source/FLOROS A.wav",channels:0 );
@@ -174,26 +174,28 @@ Synth(\obin,[\b,16])
 ~aa.play;
 s.record(numChannels:4);
 \\////////////////////////////////////multiple synths
+100.xrand
 
 (
+~n=0.0;
 512.do{
 	|i|
 (
 		SynthDef.new(\obin_++i, {
 
-    var b=643;
+    var b=0;
     var in1,chainx,chainy;
 	var chainxx,chainyy;
 	var bank,frames=1024;
 	var samplerate=44100;
 	var env,k;
 
-    in1 = PlayBuf.ar(1, ~c1.bufnum, BufRateScale.kr(~c1),startPos:0.0, loop: 0, doneAction:2);
+    in1 = PlayBuf.ar(1, ~c1.bufnum, BufRateScale.kr(~c1),startPos:~n.postln, loop: 0, doneAction:2);
 
 	chainx = FFT(LocalBuf(frames), in1);
 	chainy = FFT(LocalBuf(frames), in1);
 
-			b=(frames/2).rand.postln;
+			b=512.xrand.postln;
 chainxx = chainx.pvcollect(frames, {|magnitude, phase, bin|
 		[magnitude,phase]
 
@@ -201,39 +203,38 @@ chainxx = chainx.pvcollect(frames, {|magnitude, phase, bin|
 
 chainyy = chainx.pvcollect(frames, {|magnitude, phase, bin|
 
-		[magnitude,phase]
+		[magnitude,phase+90.degrad]
 
 }, frombin: b, tobin: b, zeroothers: 1);
 
-		Out.ar(0,IFFT(chainxx)*8);
-		Out.ar(1,IFFT(chainyy)*8);
+		Out.ar(0,IFFT(chainxx)*1);
+		Out.ar(1,IFFT(chainyy)*1);
 }).add;
 );
+	~n=~n+38124.0;
 }
 )
-Synth(\obin_++(999.rand))
+Synth(\obin_200)
+
 Synth(\obin_10)
 
-~dur=(~c1.numFrames/44100);
+~dur=((~c1.numFrames/512)/44100);
+
+~c1.numFrames/512
 
 	(
 Tdef.new(\h,{
-loop({
-		10.do{Synth(\obin_++(511.rand))};
-			(~dur/5).wait;
-		20.do{Synth(\obin_++(511.rand))};
-		(~dur/4).wait;
-		30.do{Synth(\obin_++(511.rand))};
-			(~dur/3).wait;
-		40.do{Synth(\obin_++(511.rand))};
-			(~dur/2).wait;
-		512.do{Synth(\obin_++(511.rand))};
+//loop({
+			512.do{|i| Synth(\obin_++i);(~dur).wait;}
 
 
-	})
+	//})
 })
 );
 
 Tdef(\h).stop;
 Tdef(\h).play;
 Tdef(\h).clear;
+
+r=Routine{512.do{|i| Synth(\obin_++i); (1+i).postln; (~dur).wait;}}
+r.play
