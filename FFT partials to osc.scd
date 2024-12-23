@@ -237,6 +237,13 @@ r.play
 ////////////////////////////////
 
 ~dur=((~c1.numFrames/512)/44100)
+({
+		var n=0;
+	~list=(512).collect{
+		n=n+~dur;
+		}
+		}.value
+	)
 (
 Synth(\bin);
 s.record
@@ -250,7 +257,8 @@ SynthDef.new(\bin,{
 	var chainxx,chainyy;
 	var bank,frames=1024;
 	var samplerate=44100;
-	var env,dur=~dur;
+	var env,dur;
+	var m=1,x=1,n=0;
 
 		in1 = PlayBuf.ar(1, ~c1.bufnum, BufRateScale.kr(~c1.bufnum),startPos:0, loop: 0, doneAction:2);
 		chainx = FFT(LocalBuf(frames), in1);
@@ -258,24 +266,30 @@ SynthDef.new(\bin,{
 
 
 	512.do{
+
+m=(x+1)/x;
+dur=~list.[n]*m;
+
+x=x+1;
+n=n+1;
+
 			env=EnvGen.ar(Env.new([0,0,1],[dur,0.01],\sine));
-			dur=dur+~dur;
 
 			b=511.xrand(b).postln;
 
 chainxx = chainx.pvcollect(frames, {|magnitude, phase, bin|
-		[magnitude,phase]
+		[magnitude*env,phase]
 
 }, frombin: b, tobin: b, zeroothers: 1);
 
 chainyy = chainx.pvcollect(frames, {|magnitude, phase, bin|
 
-		[magnitude,phase+90.degrad]
+		[magnitude*env,phase+90.degrad]
 
 }, frombin: b, tobin: b, zeroothers: 1);
 
-		Out.ar(0,IFFT(chainxx)*env);
-		Out.ar(1,IFFT(chainyy)*env);
+		Out.ar(0,IFFT(chainxx));
+		Out.ar(1,IFFT(chainyy));
 
 };
 
