@@ -268,14 +268,14 @@ SynthDef.new(\bin,{
 	512.do{
 
 m=(x+1)/x;
-dur=~list.[n]*m;
+dur=~list.[n]/m;
 
 x=x+1;
 n=n+1;
 
-			env=EnvGen.ar(Env.new([0,0,1],[dur,0.01],\sine));
+			env=EnvGen.ar(Env.new([0,0,1],[dur.postln,0.01],\sine));
 
-			b=511.xrand(b).postln;
+			b=511.xrand(b);
 
 chainxx = chainx.pvcollect(frames, {|magnitude, phase, bin|
 		[magnitude*env,phase]
