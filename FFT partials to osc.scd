@@ -272,10 +272,10 @@ dur=~list.[n]/m;
 
 x=x+1;
 n=n+1;
+		//env=EnvGen.ar(Env.new([1,1,0],[dur,0.01],\sine));
+			env=EnvGen.ar(Env.new([0,0,1],[dur,0.01],\sine));
 
-			env=EnvGen.ar(Env.new([0,0,1],[dur.postln,0.01],\sine));
-
-			b=511.xrand(b);
+			b=511.xrand(b).postln;
 
 chainxx = chainx.pvcollect(frames, {|magnitude, phase, bin|
 		[magnitude*env,phase]
