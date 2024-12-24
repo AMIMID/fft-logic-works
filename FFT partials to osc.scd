@@ -244,6 +244,15 @@ r.play
 		}
 		}.value
 	)
+
+({
+		var n=1.neg;
+	~k=(512).collect{
+		n=n+1;
+		}
+		}.value
+	)
+
 (
 Synth(\bin);
 s.record
@@ -264,7 +273,7 @@ SynthDef.new(\bin,{
 		chainx = FFT(LocalBuf(frames), in1);
 	chainy = FFT(LocalBuf(frames), in1);
 
-
+	k=Pxrand(~k,512).asStream;
 	512.do{
 
 m=(x+1)/x;
@@ -273,9 +282,10 @@ dur=~list.[n]/m;
 x=x+1;
 n=n+1;
 		//env=EnvGen.ar(Env.new([1,1,0],[dur,0.01],\sine));
+		///further modulations for presence of indivual bins can be achieved through further variations of the envelope
 			env=EnvGen.ar(Env.new([0,0,1],[dur,0.01],\sine));
-
-			b=511.xrand(b).postln;
+b=k.next.postln;
+			//b=511.xrand(b).postln;
 
 chainxx = chainx.pvcollect(frames, {|magnitude, phase, bin|
 		[magnitude*env,phase]
