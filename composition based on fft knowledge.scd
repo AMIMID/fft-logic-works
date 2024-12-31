@@ -1,6 +1,6 @@
 (
 {
-var  sph1,sph2,sph3,sph4,sph5,m_x=3,m_y=2,m_z=1;
+var  sph1,sph2,sph3,sph4,sph5,m_x=3,m_y=2,m_z=2;
 var az1=0,el1=0,az2=0,el2=0,az3=0,el3=0,mag,mag_x,mag_y,mag_z;
 var az4=0,el4=0,az5=0,el5=0,pl1=0,pl2=0,pl3=0,pl4=0,pl5=0;
 
@@ -146,7 +146,7 @@ s.options.numOutputBusChannels=4;
 s.options.numInputBusChannels=0;
 TempoClock.default.tempo_(0.5);
 s.options.memSize = 8192*128*2;
-s.options.blockSize = 64*4;
+s.options.blockSize = 64;
 s.options.maxNodes = 1024 * 16;
 s.options.sampleRate= 44100;
 s.boot
@@ -154,12 +154,12 @@ s.boot
 
 
 (
-~time=32;
+~time=8;
 	{
 	 	var pl=1.neg,o,sph,v;
 		~mag_x=(360*~time).collect{
 			pl=pl+1;
-			o=Cartesian(~magx.[pl], ~magy.[pl],~magz.[pl],).rho/(2.sqrt);
+			o=Cartesian(~magx.[pl], ~magy.[pl],~magz.[pl]).rho/(2.sqrt);
 		sph=Spherical(o*24,~az.[pl],~el.[pl]);
 		v=2.pow(sph.x/12);
 		};
@@ -170,7 +170,7 @@ s.boot
 	 	var pl=1.neg,o,sph,v;
 		~mag_y=(360*~time).collect{
 			pl=pl+1;
-			o=Cartesian(~magx.[pl], ~magy.[pl],~magz.[pl],).rho/(2.sqrt);
+			o=Cartesian(~magx.[pl], ~magy.[pl],~magz.[pl]).rho/(2.sqrt);
 		sph=Spherical(o*24,~az.[pl],~el.[pl]);
 		v=2.pow(sph.y/12);
 		};
@@ -181,7 +181,7 @@ s.boot
 	 	var pl=1.neg,o,sph,v;
 		~mag_z=(360*~time).collect{
 			pl=pl+1;
-			o=Cartesian(~magx.[pl], ~magy.[pl],~magz.[pl],).rho/(2.sqrt);
+			o=Cartesian(~magx.[pl], ~magy.[pl],~magz.[pl]).rho/(2.sqrt);
 		sph=Spherical(o*24,~az.[pl],~el.[pl]);
 		v=2.pow(sph.z/12);
 		};
@@ -192,13 +192,13 @@ s.boot
 
 (
 {
-	var n=1,freq=10,fund=400;
+	var n=10,freq=1,fund=40;
 
 	100.do{
-	Out.ar(0,SinOsc.ar(fund+(freq*n),mul:EnvGen.ar(Env(~mag_x.reciprocal,[0.01],\sine),doneAction:2,levelScale:n.reciprocal);));
-	Out.ar(1,SinOsc.ar(fund+(freq*n),phase:90.degrad,mul:EnvGen.ar(Env(~mag_y.reciprocal,[0.01],\sine),doneAction:2,levelScale:n.reciprocal);));
+	Out.ar(0,SinOsc.ar(200+(freq*n),mul:EnvGen.ar(Env(~mag_x.reciprocal,[0.01],\sine),doneAction:2,levelScale:n.reciprocal);));
+	Out.ar(1,SinOsc.ar(200+(freq*n),phase:90.degrad,mul:EnvGen.ar(Env(~mag_y.reciprocal,[0.01],\sine),doneAction:2,levelScale:n.reciprocal);));
 	//Out.ar(0,SinOsc.ar(fund+(freq*n),mul:EnvGen.ar(Env(~mag_z.reciprocal,[0.01],\sine),doneAction:2,levelScale:n.reciprocal);));
-		n=n+2
+		n=n+20
 	};
 
 }.play
